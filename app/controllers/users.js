@@ -1,5 +1,6 @@
 const jsonwebtoken = require('jsonwebtoken');
 const User = require('../models/users');
+const Label = require('../models/labels');
 const { secret } = require('../config');
 
 class UsersController {
@@ -118,6 +119,41 @@ class UsersController {
             me.save();
         }
         ctx.status = 204;
+    }
+
+    async checkLabelExist(ctx, next) {
+        const label = await Label.findById(ctx.params.id);
+        if (!label) {
+            ctx.throw(404, '该标签不存在');
+        }
+        await next();
+    }
+    
+    async followLabel (ctx) {
+        const me = await User.findById(ctx.state.user._id).select('+tags');
+        if (!me.tags.map(id => id.toString()).includes(ctx.params.id)) {
+            me.tags.push(ctx.params.id);
+            me.save();
+        }
+        ctx.status = 204;
+    }
+
+    async unfollowLabel(ctx) {
+        const me = await User.findById(ctx.state.user._id).select('+tags');
+        const index = me.tags.map(id => id.toString()).indexOf(ctx.params.id);
+        if (index > -1) {
+            me.tags.splice(index, 1);
+            me.save();
+        }
+        ctx.status = 204;
+    }
+
+    async listFollowingLabels(ctx) {
+        const user = await User.findById(ctx.params.id).select('+tags').populate('tags');
+        if (!user) {
+            ctx.throw(404, '用户不存在');
+        }
+        ctx.body = user.tags;
     }
 }
 

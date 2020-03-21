@@ -6,7 +6,10 @@ const {
     create, update,
     delete: del,
     login, checkOwner, listFollowing, listFollowers, checkUserExist,
-    follow, unfollow
+    follow, unfollow,
+    checkLabelExist,
+    followLabel, unfollowLabel,
+    listFollowingLabels
 } = require('../controllers/users')
 const { secret } = require('../config');
 
@@ -31,5 +34,11 @@ router.get('/:id/followers', listFollowers);
 router.put('/following/:id', auth, checkUserExist, follow);
 
 router.delete('/following/:id', auth, checkUserExist, unfollow);
+
+router.put('/followingLabels/:id', auth, checkLabelExist, followLabel);
+
+router.delete('/followingLabels/:id', auth, checkLabelExist, unfollowLabel);
+
+router.get('/:id/followingLabels', listFollowingLabels);
 
 module.exports = router;

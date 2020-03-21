@@ -1,4 +1,5 @@
 const Label = require('../models/labels');
+const User = require('../models/users');
 
 class LabelsController {
     async find (ctx) {
@@ -33,6 +34,19 @@ class LabelsController {
         })
         const label = await Label.findByIdAndUpdate(ctx.params.id, ctx.request.body, {new: true});
         ctx.body = label;
+    }
+
+    async checkLabelExist(ctx, next) {
+        const label = await Label.findById(ctx.params.id);
+        if (!label) {
+            ctx.throw(404, '该标签不存在');
+        }
+        await next();
+    }
+    
+    async listLabelsFollowers (ctx) {
+        const users = await User.find({ tags: ctx.params.id });
+        ctx.body = users;
     }
 }
 

@@ -13,7 +13,7 @@ class UsersController {
     async findById (ctx) {
         const { fields = '' } = ctx.query;
         const selectFields = fields.split(';').filter(f => f).map(f => ' +' + f).join('');
-        const user = await User.findById(ctx.params.id).select(selectFields);
+        const user = await User.findById(ctx.params.id).select(selectFields).populate('tags');
         if (!user) {
             ctx.throw(404, '用户不存在');
         }

@@ -9,7 +9,8 @@ const {
     follow, unfollow,
     checkLabelExist,
     followLabel, unfollowLabel,
-    listFollowingLabels
+    listFollowingLabels,
+    listTopics
 } = require('../controllers/users')
 const { secret } = require('../config');
 
@@ -40,5 +41,7 @@ router.put('/followingLabels/:id', auth, checkLabelExist, followLabel);
 router.delete('/followingLabels/:id', auth, checkLabelExist, unfollowLabel);
 
 router.get('/:id/followingLabels', listFollowingLabels);
+
+router.get('/:id/topics', listTopics);
 
 module.exports = router;

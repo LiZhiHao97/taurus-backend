@@ -1,5 +1,6 @@
 const Label = require('../models/labels');
 const User = require('../models/users');
+const Topic = require('../models/topics');
 
 class LabelsController {
     async find (ctx) {
@@ -11,6 +12,7 @@ class LabelsController {
 
     async findById (ctx) {
         const { fields = '' } = ctx.query;
+        console.log(fields);
         const selectFields = fields.split(';').filter(f => f).map(f => ' +' + f).join('');
         const label = await Label.findById(ctx.params.id).select(selectFields);
         ctx.body = label;
@@ -22,6 +24,11 @@ class LabelsController {
             avatar_url: { type: 'string', required: false },
             introduction: { type: 'string', required: false }
         })
+        const { name } = ctx.request.body;
+        const repeatedLabel = await Label.findOne({name});
+        if (repeatedLabel) {
+            ctx.throw(409, '该标签已存在');
+        }
         const label = await new Label(ctx.request.body).save();
         ctx.body = label;
     }
@@ -32,7 +39,7 @@ class LabelsController {
             avatar_url: { type: 'string', required: false },
             introduction: { type: 'string', required: false }
         })
-        const label = await Label.findByIdAndUpdate(ctx.params.id, ctx.request.body, {new: true});
+        const label = await Label.findByIdAndUpdate(ctx.params.id, ctx.request.body);
         ctx.body = label;
     }
 
@@ -47,6 +54,11 @@ class LabelsController {
     async listLabelsFollowers (ctx) {
         const users = await User.find({ tags: ctx.params.id });
         ctx.body = users;
+    }
+
+    async listTopics(ctx) {
+        const questions = await Topic.find({labels: ctx.params.id});
+        ctx.body = questions;
     }
 }
 

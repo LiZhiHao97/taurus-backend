@@ -28,6 +28,10 @@ const userSchema = new Schema({
         // 这种type可以通过用户某个字段获取全部信息, 详见接口中的populate方法
         type: [{ type: Schema.Types.ObjectId, ref: 'User'}],
         select: false
+    },
+    followingTopic: {
+        type: [{ type: Schema.Types.ObjectId, ref: 'Topic'}],
+        select: false
     }
 });
 

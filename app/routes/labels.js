@@ -3,7 +3,8 @@ const Router = require('koa-router');
 const router = new Router({ prefix: '/labels' });
 const {
     find, findById, create, update,
-    listLabelsFollowers, checkLabelExist
+    listLabelsFollowers, checkLabelExist,
+    listTopics
 } = require('../controllers/labels');
 const { secret } = require('../config');
 const auth = jwt({ secret });
@@ -17,5 +18,7 @@ router.get('/:id', checkLabelExist, findById);
 router.patch('/:id', checkLabelExist, auth, update);
 
 router.get('/:id/followers', checkLabelExist, listLabelsFollowers);
+
+router.get('/:id/topics', checkLabelExist, listTopics);
 
 module.exports = router;

@@ -1,6 +1,7 @@
 const jsonwebtoken = require('jsonwebtoken');
 const User = require('../models/users');
 const Label = require('../models/labels');
+const Topic = require('../models/topics');
 const { secret } = require('../config');
 
 class UsersController {
@@ -53,7 +54,7 @@ class UsersController {
             educations: { type: 'array', itemType: 'object', required: false },
             tags: { type: 'array', itemType: 'string', required: false }
         })
-        const user = await User.findByIdAndUpdate(ctx.params.id, ctx.request.body, {new: true});
+        const user = await User.findByIdAndUpdate(ctx.params.id, ctx.request.body);
         if (!user) {
             ctx.throw(404, '用户不存在');
         }
@@ -154,6 +155,11 @@ class UsersController {
             ctx.throw(404, '用户不存在');
         }
         ctx.body = user.tags;
+    }
+    
+    async listTopics (ctx) {
+        const topics = await Topic.find({sponsor: ctx.params.id});
+        ctx.body = topics;
     }
 }
 

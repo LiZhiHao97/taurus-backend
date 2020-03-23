@@ -173,8 +173,8 @@ class UsersController {
         if (index > -1) {
             me.likingAnswers.splice(index, 1);
             me.save();
+            await Answer.findByIdAndUpdate(ctx.params.id, { $inc: { voteCount: -1 } });
         }
-        await Answer.findByIdAndUpdate(ctx.params.id, { $inc: { voteCount: -1 } });
         ctx.status = 204;
     }
 
@@ -191,7 +191,6 @@ class UsersController {
         if (!me.dislikingAnswers.map(id => id.toString()).includes(ctx.params.id)) {
             me.dislikingAnswers.push(ctx.params.id);
             me.save();
-            // 投票数+1， mongoose的语法
         }
         ctx.status = 204;
         await next();

@@ -12,6 +12,6 @@ const topicSchema = new Schema({
         select: false,
         required: true
     }
-})
+}, { timestamps: true })
 
 module.exports = model('Topic', topicSchema);

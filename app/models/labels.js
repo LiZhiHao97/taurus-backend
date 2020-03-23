@@ -8,6 +8,6 @@ const labelSchema = new Schema({
     avatar_url: { type: String },
     introduction: { type: String, select: false },
     type: { type: Number, enum: [1, 2, 3, 4, 5], required: true }
-})
+}, { timestamps: true })
 
 module.exports = model('Label', labelSchema);

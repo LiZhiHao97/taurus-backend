@@ -2,6 +2,7 @@ const jsonwebtoken = require('jsonwebtoken');
 const User = require('../models/users');
 const Label = require('../models/labels');
 const Topic = require('../models/topics');
+const Answer = require('../models/answers');
 const { secret } = require('../config');
 
 class UsersController {
@@ -121,14 +122,6 @@ class UsersController {
         }
         ctx.status = 204;
     }
-
-    async checkLabelExist(ctx, next) {
-        const label = await Label.findById(ctx.params.id);
-        if (!label) {
-            ctx.throw(404, '该标签不存在');
-        }
-        await next();
-    }
     
     async followLabel (ctx) {
         const me = await User.findById(ctx.state.user._id).select('+tags');
@@ -160,6 +153,66 @@ class UsersController {
     async listTopics (ctx) {
         const topics = await Topic.find({sponsor: ctx.params.id});
         ctx.body = topics;
+    }
+
+    async likeAnswer (ctx, next) {
+        const me = await User.findById(ctx.state.user._id).select('+likingAnswers');
+        if (!me.likingAnswers.map(id => id.toString()).includes(ctx.params.id)) {
+            me.likingAnswers.push(ctx.params.id);
+            me.save();
+            // 投票数+1， mongoose的语法
+            await Answer.findByIdAndUpdate(ctx.params.id, { $inc: { voteCount: 1 } });
+        }
+        ctx.status = 204;
+        await next();
+    }
+
+    async unlikeAnswer(ctx) {
+        const me = await User.findById(ctx.state.user._id).select('+likingAnswers');
+        const index = me.likingAnswers.map(id => id.toString()).indexOf(ctx.params.id);
+        if (index > -1) {
+            me.likingAnswers.splice(index, 1);
+            me.save();
+        }
+        await Answer.findByIdAndUpdate(ctx.params.id, { $inc: { voteCount: -1 } });
+        ctx.status = 204;
+    }
+
+    async listLikingAnswers(ctx) {
+        const user = await User.findById(ctx.params.id).select('+likingAnswers').populate('likingAnswers');
+        if (!user) {
+            ctx.throw(404, '用户不存在');
+        }
+        ctx.body = user.likingAnswers;
+    }
+
+    async dislikeAnswer (ctx, next) {
+        const me = await User.findById(ctx.state.user._id).select('+dislikingAnswers');
+        if (!me.dislikingAnswers.map(id => id.toString()).includes(ctx.params.id)) {
+            me.dislikingAnswers.push(ctx.params.id);
+            me.save();
+            // 投票数+1， mongoose的语法
+        }
+        ctx.status = 204;
+        await next();
+    }
+
+    async undislikeAnswer(ctx) {
+        const me = await User.findById(ctx.state.user._id).select('+dislikingAnswers');
+        const index = me.dislikingAnswers.map(id => id.toString()).indexOf(ctx.params.id);
+        if (index > -1) {
+            me.dislikingAnswers.splice(index, 1);
+            me.save();
+        }
+        ctx.status = 204;
+    }
+
+    async listDislikingAnswers(ctx) {
+        const user = await User.findById(ctx.params.id).select('+dislikingAnswers').populate('likingAnswers');
+        if (!user) {
+            ctx.throw(404, '用户不存在');
+        }
+        ctx.body = user.dislikingAnswers;
     }
 }
 

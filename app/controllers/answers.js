@@ -57,7 +57,8 @@ class AnswerController {
         if (!answer) {
             ctx.throw(404, '该回答不存在');
         }
-        if (answer.topicId !== ctx.params.topicId) {
+        // 只有删改查回答时才检查此逻辑，赞和踩回答时不检查
+        if (ctx.params.topicId && answer.topicId !== ctx.params.topicId) {
             ctx.throw(404, '该话题下没有此回答');
         }
         ctx.state.answer = answer;

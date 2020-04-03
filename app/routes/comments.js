@@ -1,6 +1,6 @@
 const jwt = require('koa-jwt');
 const Router = require('koa-router');
-const router = new Router({prefix: '/topics/:topicId/answers/:answerId/comments'});
+const router = new Router({prefix: '/api/topics/:topicId/answers/:answerId/comments'});
 const { secret } = require('../config');
 const {
     find, findById, create, update, delete: del,

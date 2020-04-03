@@ -74,13 +74,14 @@ class UsersController {
             name: { type: 'string', required: true },
             password: { type: 'string', required: true }
         })
-        const user = await User.findOne(ctx.request.body);
+        const user = await User.findOne(ctx.request.body).select(' +locations +educations +tags +likingAnswers').populate('tags');
         if (!user) {
             ctx.throw(401, '用户名或密码不正确')
         }
         const { _id, name } = user;;
         const token = jsonwebtoken.sign({_id, name}, secret, {expiresIn: '1d'});
-        ctx.body = { token };
+        const userData = { token, user };
+        ctx.body = { userData };
     }
 
     async listFollowing(ctx) {

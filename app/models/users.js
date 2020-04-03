@@ -4,12 +4,14 @@ const { Schema, model } = mongoose;
 
 const userSchema = new Schema({
     __v: {type: Number,select: false},
-    name: { type: String, required: true },
+    name: { type: String, required: true,  unique: true },
     password: { type: String, require: true, select: false },
-    avatar_url: { type: String },
+    email: { type: String, default: '', select: false },
+    phone: { type: String, default: '', select: false },
+    avatar_url: { type: String, default: '' },
     gender: { type: String, enum: ['male', 'female'], default: 'male', required: true },
-    headline: { type: String },
-    locations: { type: [{type: String}], select: false },
+    headline: { type: String, default: '' },
+    locations: { type: [{type: String}], default: [], select: false },
     educations: {
         type: [{
             school: { type: String },
@@ -18,27 +20,33 @@ const userSchema = new Schema({
             entrance_year: { type: Number },
             graduation_year: { type: Number }
         }],
+        default: [],
         select: false
     },
     tags: { 
         type: [{type: Schema.Types.ObjectId, ref: 'Label'}],
+        default: [],
         select: false 
     },
     following: {
         // 这种type可以通过用户某个字段获取全部信息, 详见接口中的populate方法
         type: [{ type: Schema.Types.ObjectId, ref: 'User'}],
+        default: [],
         select: false
     },
     followingTopics: {
         type: [{ type: Schema.Types.ObjectId, ref: 'Topic'}],
+        default: [],
         select: false
     },
     likingAnswers: {
         type: [{ type: Schema.Types.ObjectId, ref: 'Answer' }],
+        default: [],
         select: false
     },
     dislikingAnswers: {
         type: [{ type: Schema.Types.ObjectId, ref: 'Answer' }],
+        default: [],
         select: false
     },
 }, { timestamps: true });

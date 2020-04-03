@@ -1,6 +1,6 @@
 const jwt = require('koa-jwt');
 const Router = require('koa-router');
-const router = new Router({ prefix: '/labels' });
+const router = new Router({ prefix: '/api/labels' });
 const {
     find, findById, create, update,
     listLabelsFollowers, checkLabelExist,

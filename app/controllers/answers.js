@@ -9,6 +9,7 @@ class AnswerController {
         const q = new RegExp(ctx.query.q);
         ctx.body = await Answer
             .find({ content: q, topicId: ctx.params.topicId })
+            .populate('answerer')
             .limit(perPage)
             .skip(page * perPage);
     }
@@ -16,7 +17,7 @@ class AnswerController {
     async findById (ctx) {
         const { fields = '' } = ctx.query;
         const selectFields = fields.split(';').filter(f => f).map(f => ' +' + f).join('');
-        const answer = await Answer.findById(ctx.params.id).select(selectFields).populate('answerer');
+        const answer = await Answer.findById(ctx.params.id).select(selectFields).populate('answerer topicId');
         ctx.body = answer;
     }
     
@@ -58,7 +59,8 @@ class AnswerController {
             ctx.throw(404, '该回答不存在');
         }
         // 只有删改查回答时才检查此逻辑，赞和踩回答时不检查
-        if (ctx.params.topicId && answer.topicId !== ctx.params.topicId) {
+        console.log(ctx.params.topicId);
+        if (ctx.params.topicId && answer.topicId.toString() !== ctx.params.topicId) {
             ctx.throw(404, '该话题下没有此回答');
         }
         ctx.state.answer = answer;

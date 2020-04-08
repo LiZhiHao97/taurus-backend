@@ -32,7 +32,8 @@ class CommentController {
         const commentator = ctx.state.user._id;
         const { topicId, answerId } = ctx.params;
         const comment = await new Comment({...ctx.request.body, commentator, topicId, answerId}).save();
-        ctx.body = comment;
+        const newComment = await Comment.findById(comment._id).populate('replyTo commentator')
+        ctx.body = newComment;
     }
 
     async checkCommentator(ctx, next) {

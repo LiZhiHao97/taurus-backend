@@ -6,10 +6,9 @@ const topicSchema = new Schema({
     __v: { type: Number, select: false },
     title: { type: String, required: true },
     description: { type: String },
-    sponsor: { type: Schema.Types.ObjectId, ref: 'User', required: true, select: false },
+    sponsor: { type: Schema.Types.ObjectId, ref: 'User', required: true },
     labels: {
         type: [{ type: Schema.Types.ObjectId, ref: 'Label' }],
-        select: false,
         required: true
     }
 }, { timestamps: true })

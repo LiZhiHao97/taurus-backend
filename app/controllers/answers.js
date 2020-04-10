@@ -28,7 +28,8 @@ class AnswerController {
         const answerer = ctx.state.user._id;
         const { topicId } = ctx.params;
         const answer = await new Answer({...ctx.request.body, answerer, topicId}).save();
-        ctx.body = answer;
+        const newAnswer = await Answer.findById(answer._id).populate('answerer');
+        ctx.body = newAnswer;
     }
 
     async checkAnswerer(ctx, next) {

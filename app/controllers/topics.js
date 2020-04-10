@@ -9,6 +9,7 @@ class TopicController {
         const q = new RegExp(ctx.query.q);
         ctx.body = await Topic
             .find({ $or: [{ title: q }, { description: q }] })
+            .populate('sponsor labels')
             .limit(perPage)
             .skip(page * perPage);
     }

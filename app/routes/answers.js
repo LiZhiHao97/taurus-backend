@@ -3,13 +3,14 @@ const Router = require('koa-router');
 const router = new Router({prefix: '/api/topics/:topicId/answers'});
 const { secret } = require('../config');
 const {
-    find, findById, create, update, delete: del,
+    find, findById, findByUser, create, update, delete: del,
     checkAnswerer, checkAnswerExist
 } = require('../controllers/answers');
 
 const auth = jwt({ secret });
 
 router.get('/', find);
+router.get('/:id/users/:uid', findByUser);
 router.get('/:id', checkAnswerExist, findById);
 router.post('/', auth, create);
 router.get('/:id', checkAnswerExist, findById);

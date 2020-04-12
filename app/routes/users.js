@@ -7,8 +7,8 @@ const {
     delete: del,
     login, checkOwner, listFollowing, listFollowers, checkUserExist,
     follow, unfollow,
-    followLabel, unfollowLabel,
-    listFollowingLabels,
+    followTopics, unfollowTopics,
+    listFollowingTopics,
     listTopics,
     listLikingAnswers, likeAnswer, unlikeAnswer,
     listDislikingAnswers, dislikeAnswer, undislikeAnswer
@@ -17,6 +17,7 @@ const { secret } = require('../config');
 
 const { checkLabelExist } = require('../controllers/labels');
 const { checkAnswerExist } = require('../controllers/answers');
+const { checkTopicExist } = require('../controllers/topics')
 
 
 const auth = jwt({ secret });
@@ -41,11 +42,11 @@ router.put('/following/:id', auth, checkUserExist, follow);
 
 router.delete('/following/:id', auth, checkUserExist, unfollow);
 
-router.put('/followingLabels/:id', auth, checkLabelExist, followLabel);
+router.put('/followingTopics/:id', auth, checkTopicExist, followTopics);
 
-router.delete('/followingLabels/:id', auth, checkLabelExist, unfollowLabel);
+router.delete('/followingTopics/:id', auth, checkTopicExist, unfollowTopics);
 
-router.get('/:id/followingLabels', listFollowingLabels);
+router.get('/:id/followingTopics', listFollowingTopics);
 
 router.get('/:id/topics', listTopics);
 

@@ -1,5 +1,6 @@
 const Comment = require('../models/comments');
 const User = require('../models/users');
+const Answer = require('../models/answers');
 
 class CommentController {
     async find (ctx) {
@@ -33,6 +34,9 @@ class CommentController {
         const { topicId, answerId } = ctx.params;
         const comment = await new Comment({...ctx.request.body, commentator, topicId, answerId}).save();
         const newComment = await Comment.findById(comment._id).populate('replyTo commentator')
+
+        await Answer.findByIdAndUpdate(answerId, { $inc: { replyCount: 1 } });
+        
         ctx.body = newComment;
     }
 

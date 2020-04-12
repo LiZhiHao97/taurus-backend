@@ -16,7 +16,7 @@ class UsersController {
     async findById (ctx) {
         const { fields = '' } = ctx.query;
         const selectFields = fields.split(';').filter(f => f).map(f => ' +' + f).join('');
-        const user = await User.findById(ctx.params.id).select(selectFields).populate('tags');
+        const user = await User.findById(ctx.params.id).select(selectFields).populate('tags following');
         if (!user) {
             ctx.throw(404, '用户不存在');
         }
@@ -74,7 +74,7 @@ class UsersController {
             name: { type: 'string', required: true },
             password: { type: 'string', required: true }
         })
-        const user = await User.findOne(ctx.request.body).select(' +locations +educations +tags +likingAnswers').populate('tags');
+        const user = await User.findOne(ctx.request.body).select(' +locations +educations +tags +likingAnswers +followingTopics +createTopics +following').populate('tags');
         if (!user) {
             ctx.throw(401, '用户名或密码不正确')
         }
@@ -124,31 +124,41 @@ class UsersController {
         ctx.status = 204;
     }
     
-    async followLabel (ctx) {
-        const me = await User.findById(ctx.state.user._id).select('+tags');
-        if (!me.tags.map(id => id.toString()).includes(ctx.params.id)) {
-            me.tags.push(ctx.params.id);
+    async followTopics (ctx) {
+        const me = await User.findById(ctx.state.user._id).select('+followingTopics');
+        if (!me.followingTopics.map(id => id.toString()).includes(ctx.params.id)) {
+            me.followingTopics.push(ctx.params.id);
             me.save();
         }
         ctx.status = 204;
     }
 
-    async unfollowLabel(ctx) {
-        const me = await User.findById(ctx.state.user._id).select('+tags');
-        const index = me.tags.map(id => id.toString()).indexOf(ctx.params.id);
+    async unfollowTopics(ctx) {
+        const me = await User.findById(ctx.state.user._id).select('+followingTopics');
+        const index = me.followingTopics.map(id => id.toString()).indexOf(ctx.params.id);
         if (index > -1) {
-            me.tags.splice(index, 1);
+            me.followingTopics.splice(index, 1);
             me.save();
         }
         ctx.status = 204;
     }
 
-    async listFollowingLabels(ctx) {
-        const user = await User.findById(ctx.params.id).select('+tags').populate('tags');
+    async listFollowingTopics(ctx) {
+        const user = await User.findById(ctx.params.id).select('+followingTopics');
+        const followingTopicsIds = user.followingTopics;
+        const followingTopics = [];
         if (!user) {
             ctx.throw(404, '用户不存在');
         }
-        ctx.body = user.tags;
+
+        for (let item of followingTopicsIds) {
+            const topic = await Topic
+            .find({ _id: item})
+            .populate('sponsor labels')
+            followingTopics.push(topic[0]);
+        }
+        console.log(followingTopics);
+        ctx.body = followingTopics;
     }
     
     async listTopics (ctx) {
@@ -181,10 +191,20 @@ class UsersController {
 
     async listLikingAnswers(ctx) {
         const user = await User.findById(ctx.params.id).select('+likingAnswers').populate('likingAnswers');
+        const likingAnswersIds = user.likingAnswers;
+        const likingAswers = [];
         if (!user) {
             ctx.throw(404, '用户不存在');
         }
-        ctx.body = user.likingAnswers;
+
+        for (let item of likingAnswersIds) {
+            const answer = await Answer
+            .find({ _id: item})
+            .populate('answerer topicId')
+            likingAswers.push(answer[0]);
+        }
+        
+        ctx.body = likingAswers;
     }
 
     async dislikeAnswer (ctx, next) {

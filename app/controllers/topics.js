@@ -14,6 +14,32 @@ class TopicController {
             .skip(page * perPage);
     }
 
+    async findByIds(ctx) {
+        const ids = ctx.request.body.ids;
+        console.log(ids);
+        const result = [];
+        for (let item of ids) {
+            const topic = await Topic.find({_id: item})
+                .populate('sponsor labels');
+            if (!topic) {
+                ctx.throw(404, '存在话题不存在');
+            }
+            result.push(topic[0]);
+        }
+        ctx.body = result;
+    }
+    
+    async findByUser(ctx) {
+        const { per_page = 10 } = ctx.query;
+        const page = Math.max(ctx.query.page * 1, 1) - 1;
+        const perPage = Math.max(per_page * 1, 1);
+        ctx.body = await Topic
+            .find({ sponsor: ctx.params.uid})
+            .populate('sponsor labels')
+            .limit(perPage)
+            .skip(page * perPage);
+    }
+    
     async findById (ctx) {
         const { fields = '' } = ctx.query;
         console.log(fields);
@@ -28,6 +54,12 @@ class TopicController {
             description: { type: 'string', required: false }
         })
         const topic = await new Topic({...ctx.request.body, sponsor: ctx.state.user._id}).save();
+
+        const me = await User.findById(ctx.state.user._id).select('+createTopics');
+        if (!me.createTopics.map(id => id.toString()).includes(ctx.params.id)) {
+            me.createTopics.push(topic._id);
+            me.save();
+        }
         ctx.body = topic;
     }
 

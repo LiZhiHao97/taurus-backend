@@ -8,7 +8,7 @@ const userSchema = new Schema({
     password: { type: String, require: true, select: false },
     email: { type: String, default: '', select: false },
     phone: { type: String, default: '', select: false },
-    avatar_url: { type: String, default: '' },
+    avatar_url: { type: String, default: 'http://localhost:8000/uploads/upload_eda93f3329b27ee1da7909762b547661.png' },
     gender: { type: String, enum: ['male', 'female'], default: 'male', required: true },
     headline: { type: String, default: '' },
     locations: { type: [{type: String}], default: [], select: false },
@@ -46,6 +46,11 @@ const userSchema = new Schema({
     },
     dislikingAnswers: {
         type: [{ type: Schema.Types.ObjectId, ref: 'Answer' }],
+        default: [],
+        select: false
+    },
+    createTopics: {
+        type: [{ type: Schema.Types.ObjectId, ref: 'Topic' }],
         default: [],
         select: false
     },

@@ -3,6 +3,7 @@ const User = require('../models/users');
 const Label = require('../models/labels');
 const Topic = require('../models/topics');
 const Answer = require('../models/answers');
+const Message = require('../models/message');
 const { secret } = require('../config');
 
 class UsersController {
@@ -144,7 +145,7 @@ class UsersController {
     }
 
     async listFollowingTopics(ctx) {
-        const user = await User.findById(ctx.params.id).select('+followingTopics');
+        const user = await User.findById(ctx.params.id).sort({createdAt: -1}).select('+followingTopics');
         const followingTopicsIds = user.followingTopics;
         const followingTopics = [];
         if (!user) {
@@ -162,7 +163,7 @@ class UsersController {
     }
     
     async listTopics (ctx) {
-        const topics = await Topic.find({sponsor: ctx.params.id});
+        const topics = await Topic.find({sponsor: ctx.params.id}).sort({createdAt: -1});
         ctx.body = topics;
     }
 
@@ -190,7 +191,7 @@ class UsersController {
     }
 
     async listLikingAnswers(ctx) {
-        const user = await User.findById(ctx.params.id).select('+likingAnswers').populate('likingAnswers');
+        const user = await User.findById(ctx.params.id).sort({createdAt: -1}).select('+likingAnswers').populate('likingAnswers');
         const likingAnswersIds = user.likingAnswers;
         const likingAswers = [];
         if (!user) {
@@ -228,11 +229,49 @@ class UsersController {
     }
 
     async listDislikingAnswers(ctx) {
-        const user = await User.findById(ctx.params.id).select('+dislikingAnswers').populate('likingAnswers');
+        const user = await User.findById(ctx.params.id).sort({createdAt: -1}).select('+dislikingAnswers').populate('likingAnswers');
         if (!user) {
             ctx.throw(404, '用户不存在');
         }
         ctx.body = user.dislikingAnswers;
+    }
+
+    async listMessage (ctx) {
+        const { per_page = 10 } = ctx.query;
+        const page = Math.max(ctx.query.page * 1, 1) - 1;
+        const perPage = Math.max(per_page * 1, 1);
+        
+        const messages = await Message
+            .find({receiver: ctx.params.id})
+            .sort({createdAt: -1})
+            .populate('topicId sender')
+            .limit(perPage)
+            .skip(page * perPage);
+        ctx.body = messages;
+    }
+
+    async readAll(ctx) {
+        const messages = await Message.find({receiver: ctx.params.id});
+        for (let item of messages) {
+            console.log(item);
+            await Message.findByIdAndUpdate(item._id, {isRead: true});
+        }
+        ctx.status = 204;
+    }
+
+    async listFollowingTracks(ctx) {
+        const { per_page = 10 } = ctx.query;
+        const page = Math.max(ctx.query.page * 1, 1) - 1;
+        const perPage = Math.max(per_page * 1, 1);
+        const { following } = ctx.request.body;
+        
+        const answers = await Answer
+            .find({ answerer: { $in: following} })
+            .sort({createdAt: -1})
+            .populate('answerer')
+            .limit(perPage)
+            .skip(page * perPage);
+        ctx.body = answers;
     }
 }
 

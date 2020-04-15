@@ -11,7 +11,9 @@ const {
     listFollowingTopics,
     listTopics,
     listLikingAnswers, likeAnswer, unlikeAnswer,
-    listDislikingAnswers, dislikeAnswer, undislikeAnswer
+    listDislikingAnswers, dislikeAnswer, undislikeAnswer,
+    listMessage, readAll,
+    listFollowingTracks
 } = require('../controllers/users')
 const { secret } = require('../config');
 
@@ -61,6 +63,12 @@ router.get('/:id/dislikingAnswers', listDislikingAnswers);
 router.put('/dislikingAnswers/:id', auth, checkAnswerExist, dislikeAnswer, unlikeAnswer);
 
 router.delete('/undislikingAnswers/:id', auth, checkAnswerExist, undislikeAnswer);
+
+router.get('/:id/message', listMessage);
+
+router.post('/:id/message', auth, checkOwner, readAll);
+
+router.post('/:id/listFollowingTracks', listFollowingTracks);
  
 
 module.exports = router;

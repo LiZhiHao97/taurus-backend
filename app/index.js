@@ -8,7 +8,11 @@ const mongoose = require('mongoose');
 const app = new Koa();
 const routing = require('./routes');
 const { connectionStr } = require('./config');
+const cors = require('cors');
+const server = require('http').Server(app.callback());
+const io = require('socket.io')(server);
 
+// 链接mongoDB
 mongoose.connect(connectionStr, { useUnifiedTopology: true, useFindAndModify: false, useNewUrlParser: true }, () => console.log('MongoDB 连接成功'));
 mongoose.connection.on('error', console.error);
 
@@ -27,5 +31,15 @@ app.use(koaBody({
 // 参数校验
 app.use(parameter(app));
 routing(app);
+// socket
+io.on('connection', (socket) => {
+  socket.on('add-message', (msg) => {
+    console.log('message: '+msg);
+    io.emit('add-message', msg);
+  });
+  socket.on('disconnect', () => {
+    console.log('user disconnected');
+  });
+});
 
 app.listen(8000, () => console.log('app is runing on port 8000'))

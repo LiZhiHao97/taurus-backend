@@ -21,6 +21,7 @@ class AnswerController {
         const q = new RegExp(ctx.query.q);
         ctx.body = await Answer
             .find({ answerer: ctx.params.uid })
+            .sort({createdAt: -1})
             .populate('answerer')
             .limit(perPage)
             .skip(page * perPage);

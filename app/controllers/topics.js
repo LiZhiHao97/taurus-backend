@@ -13,7 +13,6 @@ class TopicController {
             .limit(perPage)
             .skip(page * perPage);
     }
-
     async findByIds(ctx) {
         const ids = ctx.request.body.ids;
         console.log(ids);
@@ -35,6 +34,7 @@ class TopicController {
         const perPage = Math.max(per_page * 1, 1);
         ctx.body = await Topic
             .find({ sponsor: ctx.params.uid})
+            .sort({createdAt: -1})
             .populate('sponsor labels')
             .limit(perPage)
             .skip(page * perPage);

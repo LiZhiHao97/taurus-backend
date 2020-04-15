@@ -8,10 +8,10 @@ class CommentController {
         const page = Math.max(ctx.query.page * 1, 1) - 1;
         const perPage = Math.max(per_page * 1, 1);
         const q = new RegExp(ctx.query.q);
-        const { topicId, answererId } = ctx.params;
+        const { topicId, answerId } = ctx.params;
         const { rootCommentId } = ctx.query;
         ctx.body = await Comment
-            .find({ content: q, topicId, answererId, rootCommentId })
+            .find({ content: q, topicId, answerId, rootCommentId })
             .limit(perPage)
             .skip(page * perPage)
             .populate('commentator replyTo');

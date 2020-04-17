@@ -12,7 +12,6 @@ class LabelsController {
 
     async findById (ctx) {
         const { fields = '' } = ctx.query;
-        console.log(fields);
         const selectFields = fields.split(';').filter(f => f).map(f => ' +' + f).join('');
         const label = await Label.findById(ctx.params.id).select(selectFields);
         ctx.body = label;

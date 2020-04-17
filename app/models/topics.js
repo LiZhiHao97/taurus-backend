@@ -10,6 +10,21 @@ const topicSchema = new Schema({
     labels: {
         type: [{ type: Schema.Types.ObjectId, ref: 'Label' }],
         required: true
+    },
+    followerCount: {
+        type: Number,
+        default: 0,
+        required: false
+    },
+    visitorCount: {
+        type: Number,
+        default: 0,
+        required: false
+    },
+    hot: {
+        type: Number,
+        default: 0,
+        required: false
     }
 }, { timestamps: true })
 

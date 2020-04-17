@@ -8,9 +8,37 @@ const mongoose = require('mongoose');
 const app = new Koa();
 const routing = require('./routes');
 const { connectionStr } = require('./config');
-const cors = require('cors');
-const server = require('http').Server(app.callback());
-const io = require('socket.io')(server);
+const cors = require('koa2-cors');
+
+const server = require('http').createServer(app.callback())
+const io = require('socket.io')(server)
+
+//跨域
+app.use(cors({
+    origin: function(ctx) {
+      return 'http://localhost:8100'
+    },
+    exposeHeaders: ['WWW-Authenticate', 'Server-Authorization'],
+    maxAge: 5,
+    credentials: true,
+    allowMethods: ['GET', 'POST', 'PUT', 'PATCH', 'DELETE'],
+    allowHeaders: ['Content-Type', 'Authorization', 'Accept'],
+  }));
+// socket
+
+io.on('connection', (socket) => {
+    console.log('user connected');
+
+    socket.on('disconnect', function(){
+        console.log('user disconnected');
+    });
+
+    socket.on('add-message', (message) => {
+        console.log(message);
+        io.emit('message', message);    
+    });
+});
+  
 
 // 链接mongoDB
 mongoose.connect(connectionStr, { useUnifiedTopology: true, useFindAndModify: false, useNewUrlParser: true }, () => console.log('MongoDB 连接成功'));
@@ -31,15 +59,5 @@ app.use(koaBody({
 // 参数校验
 app.use(parameter(app));
 routing(app);
-// socket
-io.on('connection', (socket) => {
-  socket.on('add-message', (msg) => {
-    console.log('message: '+msg);
-    io.emit('add-message', msg);
-  });
-  socket.on('disconnect', () => {
-    console.log('user disconnected');
-  });
-});
 
-app.listen(8000, () => console.log('app is runing on port 8000'))
+server.listen(8000, () => console.log('app is runing on port 8000'))

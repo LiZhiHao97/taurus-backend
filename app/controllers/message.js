@@ -26,8 +26,6 @@ class MessageController {
     
     async checkOwner(ctx, next) {
         const message = await Message.findById(ctx.params.id);
-        console.log(message);
-        console.log(ctx.state.user);
         if (message.receiver.toString() !== ctx.state.user._id) {
             ctx.throw(403, "您没有权限这样做");
         }

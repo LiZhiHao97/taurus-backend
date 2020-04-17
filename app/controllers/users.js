@@ -4,6 +4,7 @@ const Label = require('../models/labels');
 const Topic = require('../models/topics');
 const Answer = require('../models/answers');
 const Message = require('../models/message');
+const Share = require('../models/share')
 const { secret } = require('../config');
 
 class UsersController {
@@ -75,7 +76,7 @@ class UsersController {
             name: { type: 'string', required: true },
             password: { type: 'string', required: true }
         })
-        const user = await User.findOne(ctx.request.body).select(' +locations +educations +tags +likingAnswers +followingTopics +createTopics +following').populate('tags');
+        const user = await User.findOne(ctx.request.body).select(' +locations +educations +tags +likingAnswers +followingTopics +createTopics +following +likingShares +email +phone').populate('tags');
         if (!user) {
             ctx.throw(401, '用户名或密码不正确')
         }
@@ -130,6 +131,7 @@ class UsersController {
         if (!me.followingTopics.map(id => id.toString()).includes(ctx.params.id)) {
             me.followingTopics.push(ctx.params.id);
             me.save();
+            await Topic.findByIdAndUpdate(ctx.params.id, { $inc: { followerCount: 1 } });
         }
         ctx.status = 204;
     }
@@ -140,6 +142,7 @@ class UsersController {
         if (index > -1) {
             me.followingTopics.splice(index, 1);
             me.save();
+            await Topic.findByIdAndUpdate(ctx.params.id, { $inc: { followerCount: -1 } });
         }
         ctx.status = 204;
     }
@@ -158,7 +161,6 @@ class UsersController {
             .populate('sponsor labels')
             followingTopics.push(topic[0]);
         }
-        console.log(followingTopics);
         ctx.body = followingTopics;
     }
     
@@ -253,7 +255,6 @@ class UsersController {
     async readAll(ctx) {
         const messages = await Message.find({receiver: ctx.params.id});
         for (let item of messages) {
-            console.log(item);
             await Message.findByIdAndUpdate(item._id, {isRead: true});
         }
         ctx.status = 204;
@@ -272,6 +273,29 @@ class UsersController {
             .limit(perPage)
             .skip(page * perPage);
         ctx.body = answers;
+    }
+
+    async likeShare (ctx, next) {
+        const me = await User.findById(ctx.state.user._id).select('+likingShares');
+        if (!me.likingShares.map(id => id.toString()).includes(ctx.params.id)) {
+            me.likingShares.push(ctx.params.id);
+            me.save();
+            // 投票数+1， mongoose的语法
+            await Share.findByIdAndUpdate(ctx.params.id, { $inc: { voteCount: 1 } });
+        }
+        ctx.status = 204;
+        await next();
+    }
+
+    async unlikeShare(ctx) {
+        const me = await User.findById(ctx.state.user._id).select('+likingShares');
+        const index = me.likingShares.map(id => id.toString()).indexOf(ctx.params.id);
+        if (index > -1) {
+            me.likingShares.splice(index, 1);
+            me.save();
+            await Share.findByIdAndUpdate(ctx.params.id, { $inc: { voteCount: -1 } });
+        }
+        ctx.status = 204;
     }
 }
 

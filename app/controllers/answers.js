@@ -47,7 +47,6 @@ class AnswerController {
 
     async checkAnswerer(ctx, next) {
         const { answer } = ctx.state;
-        console.log(answer);
         if (answer.answerer.toString() !== ctx.state.user._id) {
             ctx.throw(403, "您没有权限这样做");
         }
@@ -73,7 +72,6 @@ class AnswerController {
             ctx.throw(404, '该回答不存在');
         }
         // 只有删改查回答时才检查此逻辑，赞和踩回答时不检查
-        console.log(ctx.params.topicId);
         if (ctx.params.topicId && answer.topicId.toString() !== ctx.params.topicId) {
             ctx.throw(404, '该话题下没有此回答');
         }

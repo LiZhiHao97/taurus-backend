@@ -44,6 +44,11 @@ const userSchema = new Schema({
         default: [],
         select: false
     },
+    likingShares: {
+        type: [{ type: Schema.Types.ObjectId, ref: 'Share' }],
+        default: [],
+        select: false
+    },
     dislikingAnswers: {
         type: [{ type: Schema.Types.ObjectId, ref: 'Answer' }],
         default: [],

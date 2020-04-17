@@ -9,13 +9,13 @@ class TopicController {
         const q = new RegExp(ctx.query.q);
         ctx.body = await Topic
             .find({ $or: [{ title: q }, { description: q }] })
+            .sort({hot: -1})
             .populate('sponsor labels')
             .limit(perPage)
             .skip(page * perPage);
     }
     async findByIds(ctx) {
         const ids = ctx.request.body.ids;
-        console.log(ids);
         const result = [];
         for (let item of ids) {
             const topic = await Topic.find({_id: item})
@@ -42,7 +42,6 @@ class TopicController {
     
     async findById (ctx) {
         const { fields = '' } = ctx.query;
-        console.log(fields);
         const selectFields = fields.split(';').filter(f => f).map(f => ' +' + f).join('');
         const topic = await Topic.findById(ctx.params.id).select(selectFields).populate('sponsor labels');
         ctx.body = topic;
@@ -92,6 +91,15 @@ class TopicController {
         }
         ctx.state.topic = topic;
         await next();
+    }
+    
+    async visit(ctx) {
+        ctx.verifyParams({
+            hot: { type: 'number', required: true },
+            visitorCount: { type: 'number', required: true }
+        })
+        await ctx.state.topic.update(ctx.request.body);
+        ctx.status = 204;
     }
     
     // async listTopicFollowers (ctx) {

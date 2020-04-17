@@ -13,13 +13,15 @@ const {
     listLikingAnswers, likeAnswer, unlikeAnswer,
     listDislikingAnswers, dislikeAnswer, undislikeAnswer,
     listMessage, readAll,
-    listFollowingTracks
+    listFollowingTracks,
+    likeShare, unlikeShare
 } = require('../controllers/users')
 const { secret } = require('../config');
 
 const { checkLabelExist } = require('../controllers/labels');
 const { checkAnswerExist } = require('../controllers/answers');
 const { checkTopicExist } = require('../controllers/topics')
+const { checkShareExist } = require('../controllers/share')
 
 
 const auth = jwt({ secret });
@@ -57,6 +59,11 @@ router.get('/:id/likingAnswers', listLikingAnswers);
 router.put('/likingAnswers/:id', auth, checkAnswerExist, likeAnswer, undislikeAnswer);
 
 router.delete('/unlikingAnswers/:id', auth, checkAnswerExist, unlikeAnswer);
+
+router.put('/likingShare/:id', auth, checkShareExist, likeShare);
+
+router.delete('/unlikingShare/:id', auth, checkShareExist, unlikeShare);
+
 
 router.get('/:id/dislikingAnswers', listDislikingAnswers);
 

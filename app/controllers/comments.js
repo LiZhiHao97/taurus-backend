@@ -42,7 +42,6 @@ class CommentController {
 
     async checkCommentator(ctx, next) {
         const { comment } = ctx.state;
-        console.log(comment);
         if (comment.commentator.toString() !== ctx.state.user._id) {
             ctx.throw(403, "您没有权限这样做");
         }
@@ -55,7 +54,7 @@ class CommentController {
         })
         // 只允许更新content属性
         const { content } = ctx.request.body;
-        await ctx.state.comment.update(content);
+        await ctx.state.comment.update({content});
         ctx.body = ctx.state.comment;
     }
 

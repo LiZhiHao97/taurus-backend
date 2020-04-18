@@ -4,12 +4,14 @@ const router = new Router({prefix: '/api/topics'});
 const { secret } = require('../config');
 const {
     find, findById, findByIds, findByUser, create, update, delete: del,
-    checkTopicExist, checkSponsor, visit
+    checkTopicExist, checkSponsor, visit,
+    recommendByCF
 } = require('../controllers/topics')
 
 const auth = jwt({ secret });
 
 router.get('/', find);
+router.post('/recommend', auth, recommendByCF);
 router.get('/users/:uid', findByUser);
 router.post('/users', findByIds);
 router.post('/', auth, create);

@@ -25,8 +25,7 @@ const userSchema = new Schema({
     },
     tags: { 
         type: [{type: Schema.Types.ObjectId, ref: 'Label'}],
-        default: [],
-        select: false 
+        default: []
     },
     following: {
         // 这种type可以通过用户某个字段获取全部信息, 详见接口中的populate方法

@@ -58,6 +58,11 @@ const userSchema = new Schema({
         default: [],
         select: false
     },
+    createShares: {
+        type: [{ type: Schema.Types.ObjectId, ref: 'Topic' }],
+        default: [],
+        select: false
+    }
 }, { timestamps: true });
 
 module.exports = model('User', userSchema); 

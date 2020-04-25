@@ -76,7 +76,7 @@ class UsersController {
             name: { type: 'string', required: true },
             password: { type: 'string', required: true }
         })
-        const user = await User.findOne(ctx.request.body).select(' +locations +educations +tags +likingAnswers +followingTopics +createTopics +following +likingShares +email +phone').populate('tags');
+        const user = await User.findOne(ctx.request.body).select(' +locations +educations +tags +likingAnswers +followingTopics +createTopics +following +likingShares +email +phone +createShares +password').populate('tags');
         if (!user) {
             ctx.throw(401, '用户名或密码不正确')
         }

@@ -16,7 +16,7 @@ const io = require('socket.io')(server)
 //跨域
 app.use(cors({
     origin: function(ctx) {
-      return 'http://localhost:8100'
+      return '*'
     },
     exposeHeaders: ['WWW-Authenticate', 'Server-Authorization'],
     maxAge: 5,

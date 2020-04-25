@@ -1,4 +1,5 @@
 const Share = require('../models/share');
+const User = require('../models/users')
 
 class ShareController {
     async find(ctx) {
@@ -22,6 +23,18 @@ class ShareController {
         ctx.body = share;
     }
     
+    async findByUser(ctx) {
+        const { per_page = 10 } = ctx.query;
+        const page = Math.max(ctx.query.page * 1, 1) - 1;
+        const perPage = Math.max(per_page * 1, 1);
+        ctx.body = await Share
+            .find({ author: ctx.params.uid})
+            .sort({createdAt: -1})
+            .populate('author')
+            .limit(perPage)
+            .skip(page * perPage);
+    }
+    
     async create (ctx) {
         ctx.verifyParams({
             title: { type: 'string', required: true },
@@ -31,6 +44,11 @@ class ShareController {
         const author = ctx.state.user._id;
         const share = await new Share({...ctx.request.body, author}).save();
         const newShare = await Share.findById(share._id).populate('author');
+
+        const me = await User.findById(ctx.state.user._id).select('+createShares');
+        me.createShares.push(share._id);
+        me.save();
+
         ctx.body = newShare;
     }
 

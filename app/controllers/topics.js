@@ -56,10 +56,8 @@ class TopicController {
         const topic = await new Topic({...ctx.request.body, sponsor: ctx.state.user._id}).save();
 
         const me = await User.findById(ctx.state.user._id).select('+createTopics');
-        if (!me.createTopics.map(id => id.toString()).includes(ctx.params.id)) {
-            me.createTopics.push(topic._id);
-            me.save();
-        }
+        me.createTopics.push(topic._id);
+        me.save();
         ctx.body = topic;
     }
 
